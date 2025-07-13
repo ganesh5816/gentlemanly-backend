@@ -49,5 +49,3 @@ functions:
         - "!src/**"
         - "!./**"
         - src/api/hello/**
-plugins:
-  - serverless-offline
