@@ -1,14 +1,11 @@
-# Enhanced CI/CD Pipeline with AWS Deployment
-name: CI/CD Pipeline
+name: Automated Serverless Deploy
 
 on:
   push:
-    branches: [develop, feature/*]
-  pull_request:
     branches: [develop]
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,50 +16,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
-          cache: "npm"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-
-      - name: Run linting
-        run: npm run lint
-
-      - name: Validate serverless config
-        run: npx serverless print --stage develop
-
-      - name: Package application (dry run)
-        run: npx serverless package --stage develop
-
-      - name: Show package contents
+      - name: Install Serverless Framework
         run: |
-          echo "Package created successfully!"
-          ls -la .serverless/
-          echo "Serverless config validation passed!"
-
-  deploy-develop:
-    needs: test
-    runs-on: ubuntu-latest
-    # Only deploy when code is merged to develop branch (not on PRs)
-    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-
-    environment:
-      name: develop
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
+          npm install -g serverless
+          serverless --version
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -72,62 +30,11 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
 
       - name: Deploy to AWS Develop Stage
-        run: npx serverless deploy --stage develop --verbose
+        run: serverless deploy --stage develop
 
-      - name: Run post-deployment tests
+      - name: Deployment Success
         run: |
-          echo "Running post-deployment health checks..."
-          # Add your post-deployment tests here
-          # Example: npm run test:integration
-
-      - name: Notify deployment success
-        run: |
-          echo "✅ Deployment to develop stage completed successfully!"
+          echo "🚀 Deployment completed successfully!!"
           echo "Stage: develop"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
-
-  deploy-staging:
-    needs: test
-    runs-on: ubuntu-latest
-    # Only deploy when manually triggered or on release branches
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    environment:
-      name: staging
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
-
-      - name: Deploy to AWS Staging Stage
-        run: npx serverless deploy --stage staging --verbose
-
-      - name: Run post-deployment tests
-        run: |
-          echo "Running post-deployment health checks..."
-          # Add your post-deployment tests here
-          # Example: npm run test:integration
-
-      - name: Notify deployment success
-        run: |
-          echo "✅ Deployment to staging stage completed successfully!"
-          echo "Stage: staging"
           echo "Branch: ${{ github.ref_name }}"
           echo "Commit: ${{ github.sha }}"

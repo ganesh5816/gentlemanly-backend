@@ -35,5 +35,19 @@ functions:
         - "!src/**"
         - "!./**"
         - src/api/hello/**
+  pipeline-test:
+    name: pipeline-${self:provider.stage}
+    handler: src/api/test/handler.handler
+    events:
+      - http:
+          method: get
+          path: /hello
+          cors: true
+    package:
+      individually: true
+      patterns:
+        - "!src/**"
+        - "!./**"
+        - src/api/hello/**
 plugins:
   - serverless-offline
