@@ -48,4 +48,4 @@ functions:
       patterns:
         - "!src/**"
         - "!./**"
-        - src/api/hello/**
+        - src/api/test/**
