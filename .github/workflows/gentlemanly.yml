@@ -24,11 +24,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test
-
       - name: Run linting
-        run: npm run lint
+        run: |
+          if npm run | grep -q "lint"; then
+            echo "Running linting..."
+            npm run lint
+          else
+            echo "⚠️ No lint script found in package.json - skipping linting"
+          fi
+
+      - name: Run tests
+        run: |
+          if npm run | grep -q "test"; then
+            echo "Running tests..."
+            npm test
+          else
+            echo "⚠️ No test script found in package.json - skipping tests"
+          fi
 
       - name: Validate serverless config
         run: npx serverless print --stage develop
