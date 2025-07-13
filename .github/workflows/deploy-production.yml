@@ -36,7 +36,7 @@ jobs:
 
       - name: Deployment Success
         run: |
-          echo "🚀 Deployment to production stage completed successfully!!"
+          echo "🚀 Deployment to production stage completed successfully!"
           echo "Stage: production"
           echo "Branch: ${{ github.ref_name }}"
           echo "Commit: ${{ github.sha }}"
