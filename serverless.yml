@@ -1,0 +1,39 @@
+useDotenv: true
+service: gentlemanly-backend-${self:provider.stage}
+frameworkVersion: "3"
+provider:
+  name: aws
+  runtime: python3.9
+  stage: ${opt:stage, 'dev'}
+  iam:
+    role:
+      name: gentlemanly-backend-${self:provider.stage}
+      statements:
+        - Effect: Allow
+          Action:
+            - "lambda:*"
+            - "iam:*"
+            - "cognito-idp:*"
+            - "ssm:*"
+            - "logs:*"
+            - "s3:*"
+            - "execute-api:*"
+          Resource: "*"
+
+functions:
+  handler:
+    name: hello-${self:provider.stage}
+    handler: src/api/hello/handler.handler
+    events:
+      - http:
+          method: get
+          path: /hello
+          cors: true
+    package:
+      individually: true
+      patterns:
+        - "!src/**"
+        - "!./**"
+        - src/api/hello/**
+plugins:
+  - serverless-offline
