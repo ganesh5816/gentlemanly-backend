@@ -2,7 +2,7 @@ name: Deploy to Production Stage
 
 on:
   push:
-    branches: [production] # Change to 'main' if that's your production branch
+    branches: [develop] # Triggers when code is merged to develop
 
 jobs:
   deploy:
